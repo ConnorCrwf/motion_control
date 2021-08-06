@@ -1,32 +1,30 @@
-# Prerequisites
-*.d
+#Ignore Windows and Visual Studio stuff
+**/out/build/
+.vs/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Ignore Python build files
+*.pyc
+util.pyc
 
-# Precompiled Headers
-*.gch
-*.pch
+# Ignore Mac system files
+*.directory
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# kDevelop
+*.kdev_include_paths
 
-# Fortran module files
-*.mod
-*.smod
+#PyCharm-related
+*.idea/
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+#VScode-related
+*.vscode/
 
-# Executables
-*.exe
-*.out
-*.app
+#related to Connor's virtual environment using pipenv
+Pipfile
+Pipfile.lock
+.env
+
+# test photo captures
+photo_capture*
+
+*.bag
+*.mp4

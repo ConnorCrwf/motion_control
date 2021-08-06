@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+    
+  <rosparam file="$(find motion_control)/config/controllers.yaml" command="load"/>
+  <rosparam file="$(find motion_control)/config/joint_limits.yaml" command="load"/>
+   
+  <arg name="model" default="$(find motion_control)/urdf/single_joint_actuator.urdf.xacro"/>
+  <arg name="gui" default="true" />
+  
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <node name="robot_hardware_interface" pkg="motion_control" type="single_joint_hardware_interface" output="screen"/>
+  
+  <node name="subscriber_py" pkg="motion_control" type="joints_receive_from_arduino.py" output="screen"/> 
+
+  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+  </node>
+  
+  <arg name="rvizconfig" default="$(find motion_control)/rviz/display_urdf.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)"/>
+    
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+        args="
+        	/single_joint_actuator/joints_update
+            /single_joint_actuator/joint1_position_controller
+        "/>
+</launch>
