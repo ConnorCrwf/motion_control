@@ -37,11 +37,15 @@
 #include "encoder_mapping.h"
 
 #include <std_msgs/Float32MultiArray.h>
-#include <std_msgs/Int64MultiArray.h>
-#include <std_msgs/Int32MultiArray.h>
+// #include <std_msgs/Int64MultiArray.h>
+// #include <std_msgs/Int32MultiArray.h>
 
-#include <motion_control/EncoderInfo.h>
-#include <motion_control/Pwm.h>
+#include <motion_control/encoder_rad_data.h>
+#include <motion_control/encoder_ticks_data.h>
+#include <motion_control/pid_commands_data.h>
+
+// #include <motion_control/EncoderInfo.h>
+// #include <motion_control/Pwm.h>
 
 #include <list>
 #include <vector>
@@ -72,9 +76,11 @@ namespace wombotGen3_base
 
     ~WombotHardware();
 
-    void updateWheelPositionRads_cb (const std_msgs::Float32MultiArrayConstPtr &msg);
+    // void updateWheelPositionRads_cb (const std_msgs::Float32MultiArrayConstPtr &msg);
+    // void updateWheelPositionTicks_cb (const std_msgs::Int64MultiArrayConstPtr &msg);
 
-    void updateWheelPositionTicks_cb (const std_msgs::Int64MultiArrayConstPtr &msg);
+    void updateWheelPositionRads_cb (const motion_control::encoder_rad_data &msg);
+    void updateWheelPositionTicks_cb (const motion_control::encoder_ticks_data &msg);
     /**
      * @brief Connect to the two Dynamixel drive motors and configure them.
      */

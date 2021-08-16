@@ -120,27 +120,33 @@ namespace wombotGen3_base
         // TODO: maybe change this to a queue of 1
         posTicks_sub = nh_.subscribe (posTicks_topic, 10, &WombotHardware::updateWheelPositionTicks_cb, this);
         posRads_sub = nh_.subscribe (posRads_topic, 10, &WombotHardware::updateWheelPositionRads_cb, this);
-        command_pub = nh_.advertise<std_msgs::Int32MultiArray>(command_topic, 10, false);
+        // command_pub = nh_.advertise<std_msgs::Int32MultiArray>(command_topic, 10, false);
+        command_pub = nh_.advertise<motion_control::pid_commands_data>(command_topic, 10, false);
         vel_pub = nh_.advertise<std_msgs::Float32MultiArray>(vel_topic, 10, false);
     }
 
 
     WombotHardware::~WombotHardware()
     {
-        std_msgs::Int32MultiArray msg;
-        msg.data.resize(4);
+        // std_msgs::Int32MultiArray msg;
+        // msg.data.resize(4);
         // Left PWM, Left Dir, Right PWM, Right Dir
-        int32_t ctrl_data[4] = {0, 1, 0, 1};
+        // int32_t ctrl_data[4] = {0, 1, 0, 1};
+
+        motion_control::pid_commands_data msg;
+        int32_t ctrl_data[2] = {0, 0};
+        
         for (int i = 0; i < NUM_MOTORS; ++i) {
             msg.data[i] = ctrl_data[i];
         }
         command_pub.publish(msg);
     }
 
-    void WombotHardware::updateWheelPositionTicks_cb (const std_msgs::Int64MultiArrayConstPtr &msg) 
+    // void WombotHardware::updateWheelPositionTicks_cb (const std_msgs::Int64MultiArrayConstPtr &msg) 
+    void WombotHardware::updateWheelPositionTicks_cb (const motion_control::encoder_ticks_data &msg)
     {
         for (int i = 0; i < NUM_MOTORS; i++) {
-            wheel_positionTicks_[i] = msg->data[i];
+            wheel_positionTicks_[i] = msg.data[i];
         }
         
     }
@@ -148,12 +154,16 @@ namespace wombotGen3_base
     //**************
     //TODO make this a custom message to be ints and floats
     //refer to how Alex did his cutom float array message in Motor controller Scrat Navigation package
-    void WombotHardware::updateWheelPositionRads_cb(const std_msgs::Float32MultiArrayConstPtr &msg)
+    // void WombotHardware::updateWheelPositionRads_cb(const std_msgs::Float32MultiArrayConstPtr &msg)
+    void WombotHardware::updateWheelPositionRads_cb (const motion_control::encoder_rad_data &msg)
     {
-        
-        vector<double> wheel_velocities = Encoder_Map.mapRelativeEncoderRPS(msg->data);
+        vector<float> rad_vector;
         for (int i = 0; i < NUM_MOTORS; i++) {
-            wheel_positionRads_[i] = msg->data[i];
+            rad_vector.push_back(msg.data[i]);
+        }
+        vector<double> wheel_velocities = Encoder_Map.mapRelativeEncoderRPS(rad_vector);
+        for (int i = 0; i < NUM_MOTORS; i++) {
+            wheel_positionRads_[i] = msg.data[i];
             wheel_velocitiesRPS_[i] = wheel_velocities[i];
         }
         // if used a pointer for Encoder_Map like this // EncoderMap *Encoder_Map = new EncoderMap(2);
@@ -211,6 +221,7 @@ namespace wombotGen3_base
     {
         std_msgs::Float32MultiArray velMsg;
         velMsg.data.resize(2);
+
         // output pulled data to the joint handles
         for (int i = 0; i < NUM_MOTORS; ++i) 
         {
@@ -260,12 +271,15 @@ namespace wombotGen3_base
         // also send a lower and lower control signal until it no longer rotates the motor
         //also refer to my notes about converting angular velocity to 
 
-        std_msgs::Int32MultiArray msg;
-        msg.data.resize(4);
-        //Left Speed, Right Speeds
-        int32_t ctrl_data[4] = {(int32_t)control_signals[LEFT]*27, 1, (int32_t)control_signals[RIGHT]*27, 1};
+        // std_msgs::Int32MultiArray msg;
+        // msg.data.resize(4);
+        // //Left Speed, Right Speeds
+        // int32_t ctrl_data[4] = {(int32_t)control_signals[LEFT]*27, 1, (int32_t)control_signals[RIGHT]*27, 1};
+
+        motion_control::pid_commands_data msg;
+        int32_t ctrl_data[2] = {(int32_t)control_signals[LEFT]*27, (int32_t)control_signals[RIGHT]*27};
         //don't use NUM_MOTORS here since there are 4 values in ctrl_data
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < NUM_MOTORS; ++i) {
             msg.data[i] = ctrl_data[i];
         }
         command_pub.publish(msg);

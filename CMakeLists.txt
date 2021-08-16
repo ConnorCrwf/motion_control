@@ -24,8 +24,11 @@ pkg_check_modules(YAMLCPP REQUIRED yaml-cpp>=0.5)
 
 add_message_files(
   FILES
-  EncoderInfo.msg 
-  Pwm.msg
+  # EncoderInfo.msg 
+  # Pwm.msg
+  encoder_ticks_data.msg
+  encoder_rad_data.msg
+  pid_commands_data.msg
 )
 
 ## Generate added messages and services with any dependencies listed here
