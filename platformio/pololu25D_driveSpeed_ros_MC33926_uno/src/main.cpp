@@ -8,30 +8,41 @@ const float baud = 57600; //was 9600
 
 // Arduino Includes
 #include <Arduino.h>
-// #include <util/atomic.h> // For the ATOMIC_BLOCK macro
+#include <util/atomic.h> // For the ATOMIC_BLOCK macro
 // #include <string.h>
 // #include <Wire.h>
 
 //Debugging
 // #include "avr8-stub.h"
 #include <Encoder.h>
-#define encodPinA1 2 // YELLOW
-#define encodPinB1 3 // WHITE
-#define encodPinA2    18  // right motor
-#define encodPinB2    19
+//left motor
+// #define encodPinA1 2 // YELLOW
+// #define encodPinB1 3 // WHITE
+// //right motor
+// #define encodPinA2    18  // YELLOW
+// #define encodPinB2    19  // WHITE
+
+//left motor
+#define encodPinA1 3 // YELLOW
+#define encodPinB1 13 // WHITE
+//right motor
+#define encodPinA2    2  // YELLOW
+#define encodPinB2    11  // WHITE
+
 
 #include "DualMC33926MotorShield.h"
 
-unsigned char dir1 = 7;
-unsigned char pwm1 = 9;
-unsigned char fb1 = A0;
-unsigned char dir2 = 8;
-unsigned char pwm2 = 10;
-unsigned char fb2 = A1;
-unsigned char nD2 = 4;
-unsigned char nSF = 12;
+// unsigned char dir1 = 7;
+// unsigned char pwm1 = 9;
+// unsigned char fb1 = A0;
+// unsigned char dir2 = 8;
+// unsigned char pwm2 = 10;
+// unsigned char fb2 = A1;
+// unsigned char nD2 = 4;
+// unsigned char nSF = 12;
 
-DualMC33926MotorShield md(dir1,pwm1,fb1,dir2,pwm2,fb2,nD2,nSF);
+// DualMC33926MotorShield md(dir1,pwm1,fb1,dir2,pwm2,fb2,nD2,nSF);
+DualMC33926MotorShield md;
 
 // ROS includes
 #include <ros.h>
@@ -54,6 +65,9 @@ const float RPM2RADPERSEC = 0.104719755f;
 float wheelRadius = 3.5;
 volatile int64_t countLeft = 0; // tick counter, specify countLeft as volatile: https://www.arduino.cc/reference/en/language/variables/variable-scope-qualifiers/volatile/
 volatile int64_t countRight = 0;
+
+// int64_t countLeft = 0;
+// int64_t countRight = 0;
 
 int dir;
 
@@ -82,7 +96,7 @@ int pwr_Right = 0;
 
 //C++ Function Declarations
 int setMotor(int32_t command[2], int pwm_pin, int in1, int in2);
-encoderInfoStruct processEncoderTicks(encoderInfoStruct encoderInfo, int64_t count_temp);
+encoderInfoStruct processEncoderTicks(encoderInfoStruct encoderInfo, int64_t count_temp, int correctionFactor);
 void stopIfFault();
 
 // ROS Function Declarations
@@ -132,16 +146,18 @@ void loop() {
   
 
   //make sure these are int64 or else it will default to 16 bit and will only go to -32000 and +32000
-  // int64_t countLeft_temp = 0; 
-  // int64_t countRight_temp = 0; 
-  // ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-  //   countLeft_temp = countLeft;
-  //   countRight_temp = countRight;
-  // }
+  int64_t countLeft_temp = 0; 
+  int64_t countRight_temp = 0; 
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    countLeft_temp = countLeft;
+    countRight_temp = countRight;
+  }
 
   // if having issues bring back the temp ones from above
-  encoderInfoLeft =  processEncoderTicks(encoderInfoLeft, countLeft); 
-  encoderInfoRight = processEncoderTicks(encoderInfoRight, countRight);
+  // encoderInfoLeft =  processEncoderTicks(encoderInfoLeft, countLeft); 
+  encoderInfoLeft =  processEncoderTicks(encoderInfoLeft, countLeft_temp, 27);  // different due to interrupt capabilities of arduino uno
+  // encoderInfoRight = processEncoderTicks(encoderInfoRight, countRight);
+  encoderInfoRight = processEncoderTicks(encoderInfoRight, countRight_temp,2);
   
 
   int64_t angPos_ticks[2] = {encoderInfoLeft.angPos_ticks, encoderInfoRight.angPos_ticks};
@@ -186,10 +202,10 @@ void commandCallback(const motion_control::pid_commands_data &msg){
 }
 
   //TODO may need this to change this to 12 or 24 if only using the rising edge and not both
-encoderInfoStruct processEncoderTicks(encoderInfoStruct encoderInfo, int64_t count_temp)  {  
+encoderInfoStruct processEncoderTicks(encoderInfoStruct encoderInfo, int64_t count_temp, int correctionFactor)  {  
   //to deal with the fact that the interrupt is only picking up every other pulse instead of every pulse
   //due to issue with using CHANGE in interrupt    
-  int correctionFactor = 2; 
+  // int correctionFactor = 2; 
   // static long angPos_ticksPrev1 = 0;
   encoderInfo.angPos_ticks = count_temp*correctionFactor;  
 
