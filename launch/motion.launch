@@ -2,7 +2,10 @@
 
 <launch>
     <arg name="debug" value="false"/>
-    <arg name="port"            default="/dev/ttyACM0" />
+    <!-- <arg name="port"            default="/dev/arduino" /> -->
+    <arg name="portUno"            default="/dev/arduinoUno" />
+    <arg name="portMega"            default="/dev/arduinoMega" />
+    <!-- <arg name="port"            default="/dev/ttyACM0" /> -->
     <!-- <arg name="port"            default="/dev/ttyUSB0" /> -->
     <!-- <arg name="baud_rate"       default="9600" /> -->
     <arg name="baud_rate"       default="57600" />
@@ -12,7 +15,7 @@
     <!-- Wombot hardware driver -->
     <node unless="$(arg debug)" pkg="motion_control" type="wombotGen3_node" name="wombotGen3_node">
         <rosparam subst_value="true">
-            port:      $(arg port)
+            <!-- port:      $(arg port) -->
             baud_rate: $(arg baud_rate)
 
             control_frequency: 10
@@ -38,8 +41,13 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <node pkg = "rosserial_python" type = "serial_node.py" name = "serial_node" output="screen">
-		<param name = "port" value = "$(arg port)"/>
+    <node pkg = "rosserial_python" type = "serial_node.py" name = "serial_node_uno" output="screen">
+		<param name = "port" value = "$(arg portUno)"/>
+		<param name = "baud" value = "$(arg baud_rate)"/>
+	</node>
+
+    <node pkg = "rosserial_python" type = "serial_node.py" name = "serial_node_mega" output="screen">
+		<param name = "port" value = "$(arg portMega)"/>
 		<param name = "baud" value = "$(arg baud_rate)"/>
 	</node>
 

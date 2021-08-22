@@ -15,12 +15,6 @@ const float baud = 57600; //was 9600
 //Debugging
 // #include "avr8-stub.h"
 #include <Encoder.h>
-//left motor
-// #define encodPinA1 2 // YELLOW
-// #define encodPinB1 3 // WHITE
-// //right motor
-// #define encodPinA2    18  // YELLOW
-// #define encodPinB2    19  // WHITE
 
 //left motor
 #define encodPinA1 3 // YELLOW
