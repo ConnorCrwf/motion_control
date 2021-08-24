@@ -26,6 +26,7 @@
 
             dynamixel_info: $(find motion_control)/cfg/DriveMotors.yaml
         </rosparam>
+        <remap from="/wombotGen3_velocity_controller/cmd_vel" to="/wombot_gen2proto/gui/teleop_cmd"/>
     </node>
 
     <!-- Differential controller parameters and basic localization -->
@@ -36,8 +37,10 @@
     <rosparam command="load" file="$(find motion_control)/config/control.yaml" />
 
     <!-- Spawn controllers -->
-    <node unless="$(arg debug)" name="base_controller_spawner" pkg="controller_manager" type="spawner"
-            args="wombotGen3_joint_publisher wombotGen3_velocity_controller"/>
+    <node unless="$(arg debug)" name="base_controller_spawner" pkg="controller_manager" type="spawner" 
+        args="wombotGen3_joint_publisher wombotGen3_velocity_controller">
+        <!-- <remap from="/cmd_vel" to="/wombot_gen2proto/gui/teleop_cmd"/> -->
+    </node>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 

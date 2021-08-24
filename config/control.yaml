@@ -31,12 +31,15 @@ wombotGen3_velocity_controller:
   linear:
     x:
       has_velocity_limits    : true
-      max_velocity           : 0.2   # m/s
+      max_velocity           : 0.20   # m/s
+      # min_velocity           : 0.09
+      # max_velocity           : 0.3   # m/s
       has_acceleration_limits: true
-      max_acceleration       : 0.2   # m/s^2 # was 1.0
+      # max_acceleration       : 0.2   # m/s^2 # was 1.0
+      max_acceleration       : 0.3   # m/s^2 # was 1.0
   angular:
     z:
       has_velocity_limits    : true
-      max_velocity           : 1.0   # rad/s
+      max_velocity           : 0.2   # rad/s
       has_acceleration_limits: true
       max_acceleration       : 1.0   # rad/s^2

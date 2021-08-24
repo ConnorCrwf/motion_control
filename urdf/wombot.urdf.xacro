@@ -5,8 +5,16 @@
   <xacro:arg name="robot_namespace" default="/" />
 
   <!-- Included URDF/XACRO Files -->
-  <xacro:include filename="$(find motion_control)/urdf/wheel.urdf.xacro" />
-  <xacro:include filename="$(find motion_control)/urdf/camera.urdf.xacro" />
+  <xacro:include filename="$(find perception_playground)/urdf/wheel.urdf.xacro" />
+  <xacro:include filename="$(find perception_playground)/urdf/camera.urdf.xacro" />
+
+  <material name="orange">
+					<color rgba="0.5 0.3 0.0 1"/>
+	</material>
+
+  <material name="black">
+					<color rgba="0.1 0.1 0.1 1"/>
+	</material>
 
   <xacro:property name="M_PI" value="3.14159"/>
 
@@ -22,34 +30,35 @@
 
   <!-- Wheel Mounting Positions -->
   <!-- TODO: Insert real values -->
-  <xacro:property name="wheelbase"		value="0.200" />
-  <xacro:property name="track"			value="0.240" />
-  <xacro:property name="caster_track"			value="0.220" />
-  <xacro:property name="drive_wheel_vertical_offset"	value="0.03" />
-  <xacro:property name="front_axle_x_offset"	value="0.05" />
-  <xacro:property name="caster_wheel_vertical_offset"	value="0.015" />
-  <xacro:property name="rear_axle_x_offset"	value="0.05" />
+  <xacro:property name="wheelbase"		value="0.2159" />
+  <xacro:property name="track"			value="0.196825" />
+  <xacro:property name="caster_track"			value="0.196825" />
+  <xacro:property name="ground_clearance"	value="0.00635" />
+  <xacro:property name="front_axle_x_offset"	value="0.09" />
+    <xacro:property name="rear_axle_x_offset"	value="-0.09" />
+  <!-- <xacro:property name="caster_wheel_vertical_offset"	value="0.015" /> -->
+
 
   <!-- Wheel Properties -->
   <xacro:property name="drive_wheel_length" value="0.03" />
   <xacro:property name="drive_wheel_radius" value="0.036" />
   <xacro:property name="caster_wheel_length" value="0.02" />
-  <xacro:property name="caster_wheel_radius" value="0.01" />
+  <xacro:property name="caster_wheel_radius" value="0.03" />
 
 
   <!-- Camera Properties -->
   <xacro:property name="rs_camera_thickness" value="0.02" />
   <xacro:property name="rs_camera_width" value="0.07" />
   <xacro:property name="rs_camera_height" value="0.025" />
-  <xacro:property name="rs_camera_x_offset" value="0.06" />
-  <xacro:property name="rs_camera_y_offset" value="${base_y_size/2 - rs_camera_thickness}" />
-  <xacro:property name="rs_camera_z_offset" value="${base_z_size - wall_thickness - rs_camera_height/2}" />
+  <xacro:property name="rs_camera_x_offset" value="0.00" />
+  <xacro:property name="rs_camera_y_offset" value="${base_y_size/2 - wall_thickness- rs_camera_thickness/2}" />
+  <xacro:property name="rs_camera_z_offset" value="${wall_thickness + rs_camera_height/2}" />
 
   <!-- Camera Properties -->
   <xacro:property name="usb_camera_thickness" value="0.01" />
   <xacro:property name="usb_camera_width" value="0.07" />
   <xacro:property name="usb_camera_height" value="0.015" />
-  <xacro:property name="usb_camera_x_offset" value="${-front_axle_x_offset + base_x_size/2 - wall_thickness - usb_camera_thickness}" />
+  <xacro:property name="usb_camera_x_offset" value="${base_x_size/2 - wall_thickness - usb_camera_thickness/2}" />
   <xacro:property name="usb_camera_y_offset" value="${base_y_size/2 - usb_camera_thickness}" />
   <xacro:property name="usb_camera_z_offset" value="${base_z_size - wall_thickness - usb_camera_height/2}" />
   
@@ -57,7 +66,9 @@
   <!-- Base link is the center of the robot's bottom surface -->
   <link name="base_link">
     <visual>
-      <origin xyz="${-front_axle_x_offset} 0 ${base_z_size/2}" rpy="0 0 0" />
+      <!-- This defines where the center of the visual element should be, relative to its origin.  -->
+      <!-- <origin xyz="0 0 0" rpy="0 0 0" /> -->
+      <origin xyz="0 0 ${base_z_size/2}" rpy="0 0 0" />
       <geometry>
         <box size="${ base_x_size } ${base_y_size} ${base_z_size}"/>
         <!-- This is where the true mesh files will be invoked, when ready. -->
@@ -68,7 +79,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="${front_axle_x_offset} 0 ${base_z_size/2}" rpy="0 0 0" />
+      <origin xyz="0 0 ${base_z_size/2}" rpy="0 0 0" />
       <geometry>
         <box size="${ base_x_size + 0.01 } ${base_y_size + 0.01} ${base_z_size + 0.01}"/>
       </geometry>
@@ -79,9 +90,19 @@
   <link name="base_footprint"/>
 
   <joint name="base_footprint_joint" type="fixed">
-    <origin xyz="0 0 ${drive_wheel_vertical_offset - drive_wheel_radius}" rpy="0 0 0" />
+    <origin xyz="0 0 ${-ground_clearance}" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="base_footprint" />
+  </joint>
+
+  <link name="floor"/>
+
+  <joint name="floor_joint" type="fixed">
+  <!-- intrinsic meaning it rotates about whatever the nex axes direction is -->
+    <origin xyz="0 0 -0.02085" rpy="0 0 0" />
+    <!-- <origin xyz="0 0 -0.02085" rpy="1.57 0 1.57" /> -->
+    <parent link="left_camera_link" />
+    <child link="floor" />
   </joint>
 
   <!-- Inertial link stores the robot's inertial information -->
@@ -124,22 +145,23 @@
   </joint>
 
   <!-- Drive Wheels -->
-  <xacro:wombot_wheel wheel_prefix="left_drive" wheel_radius="${drive_wheel_radius}" wheel_length="${drive_wheel_length}">
-    <origin xyz="0 ${track/2} ${drive_wheel_vertical_offset}" rpy="0 0 0" />
+  <xacro:wombot_wheel wheel_prefix="left_drive" wheel_radius="${drive_wheel_radius}" wheel_length="${drive_wheel_length}" color="orange">
+    <origin xyz="${front_axle_x_offset} ${track/2} ${-ground_clearance + drive_wheel_radius}" rpy="0 0 0" />
   </xacro:wombot_wheel>
 
-  <xacro:wombot_wheel wheel_prefix="right_drive" wheel_radius="${drive_wheel_radius}" wheel_length="${drive_wheel_length}">
+
+  <xacro:wombot_wheel wheel_prefix="right_drive" wheel_radius="${drive_wheel_radius}" wheel_length="${drive_wheel_length}" color="orange">
     <!-- this is for the joint tag inside the included .xml -->
-    <origin xyz="0 ${-track/2} ${drive_wheel_vertical_offset}" rpy="0 0 0" />
+    <origin xyz="${rear_axle_x_offset} ${-track/2} ${-ground_clearance + drive_wheel_radius}" rpy="0 0 0" />
   </xacro:wombot_wheel>
 
   <!-- Caster Wheels -->
-  <xacro:wombot_wheel wheel_prefix="left_caster" wheel_radius="${caster_wheel_radius}" wheel_length="${caster_wheel_length}">
-    <origin xyz="${-front_axle_x_offset -rear_axle_x_offset} ${caster_track/2} ${drive_wheel_vertical_offset - drive_wheel_radius + caster_wheel_radius}" rpy="0 0 0" />
+  <xacro:wombot_wheel wheel_prefix="left_caster" wheel_radius="${caster_wheel_radius}" wheel_length="${caster_wheel_length}" color="black">
+    <origin xyz="${rear_axle_x_offset} ${caster_track/2} ${-ground_clearance + caster_wheel_radius}" rpy="0 0 0" />
   </xacro:wombot_wheel>
 
-  <xacro:wombot_wheel wheel_prefix="right_caster" wheel_radius="${caster_wheel_radius}" wheel_length="${caster_wheel_length}">
-    <origin xyz="${-front_axle_x_offset -rear_axle_x_offset} ${-caster_track/2} ${drive_wheel_vertical_offset - drive_wheel_radius + caster_wheel_radius}" rpy="0 0 0" />
+  <xacro:wombot_wheel wheel_prefix="right_caster" wheel_radius="${caster_wheel_radius}" wheel_length="${caster_wheel_length}" color="black">
+    <origin xyz="${front_axle_x_offset} ${-caster_track/2} ${-ground_clearance + caster_wheel_radius}" rpy="0 0 0" />
   </xacro:wombot_wheel>
 
   <!-- Cameras -->
