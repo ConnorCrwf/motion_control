@@ -5,8 +5,8 @@
   <xacro:arg name="robot_namespace" default="/" />
 
   <!-- Included URDF/XACRO Files -->
-  <xacro:include filename="$(find perception_playground)/urdf/wheel.urdf.xacro" />
-  <xacro:include filename="$(find perception_playground)/urdf/camera.urdf.xacro" />
+  <xacro:include filename="$(find motion_control)/urdf/wheel.urdf.xacro" />
+  <xacro:include filename="$(find motion_control)/urdf/camera.urdf.xacro" />
 
   <material name="orange">
 					<color rgba="0.5 0.3 0.0 1"/>

@@ -9,12 +9,13 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   std_srvs
-  three_dof_planar_manipulator
+  # three_dof_planar_manipulator
   rviz
   robot_state_publisher
   joint_state_publisher
   urdf
   message_generation
+  rosserial_python
 )
 
 find_package(Boost REQUIRED COMPONENTS chrono)
@@ -40,8 +41,9 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS hardware_interface controller_manager roscpp rospy std_msgs std_srvs 
-  rviz robot_state_publisher joint_state_publisher urdf message_runtime
+  CATKIN_DEPENDS hardware_interface controller_manager roscpp 
+  rospy std_msgs std_srvs rviz robot_state_publisher 
+  joint_state_publisher urdf message_runtime rosserial_python
 #  DEPENDS system_lib
   DEPENDS Boost
 )
@@ -64,6 +66,7 @@ target_link_libraries(wombotGen3_node ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${Y
 
 roslaunch_add_file_check(launch)
 
-
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# tells it that this target is dependent on the other targets exported by the same package
+#  need that for messages
+add_dependencies(wombotGen3_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})

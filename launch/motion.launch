@@ -26,7 +26,7 @@
 
             dynamixel_info: $(find motion_control)/cfg/DriveMotors.yaml
         </rosparam>
-        <remap from="/wombotGen3_velocity_controller/cmd_vel" to="/wombot_gen2proto/gui/teleop_cmd"/>
+        <!-- <remap from="/wombotGen3_velocity_controller/cmd_vel" to="/wombot_gen2proto/gui/teleop_cmd"/> -->
     </node>
 
     <!-- Differential controller parameters and basic localization -->
