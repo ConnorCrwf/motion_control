@@ -81,10 +81,6 @@ namespace wombotGen3_base
 
     void updateWheelPositionRads_cb (const motion_control::encoder_rad_data &msg);
     void updateWheelPositionTicks_cb (const motion_control::encoder_ticks_data &msg);
-    /**
-     * @brief Connect to the two Dynamixel drive motors and configure them.
-     */
-    bool connect();
 
     /**
      * @brief Populates the joints variable by pulling status from the hardware.

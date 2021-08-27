@@ -170,23 +170,6 @@ namespace wombotGen3_base
         //, then you would use ->mapRelativeEncoderRPS instead of '.'
     }
 
-
-    //Verify that serial_node is up and running and other topics necessary for drive and encoders is going
-    bool WombotHardware::connect()
-    {
-        /** Load connection params. **/
-        /*
-        int baud_rate;
-        if (!private_nh_.getParam("baud_rate", baud_rate)) {
-            ROS_ERROR("Failed to load baud_rate parameter.");
-            return false;
-        }
-        */
-
-        return true;
-    }
-
-
     void WombotHardware::registerControlInterfaces()
     {
         // TODO: Parameterize these joint names

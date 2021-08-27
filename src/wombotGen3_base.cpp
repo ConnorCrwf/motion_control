@@ -64,10 +64,7 @@
  * 
  * ROS Params In:
  *  ~control_frequency [double] - The target frequency of the control loop in Hz
- *  ~port [std::string] - The serial port of the motors
- *  ~baud_rate [int] - Motor communciation rate
  *  ~max_speed [double] - Max rotation speed of the motors in radians/sec
- *  ~dynamixel_info - Path to YAML file defining the motors and their control parameters.
  */
 
 #include "wombotGen3_base/wombotGen3_hardware.h"
@@ -113,12 +110,6 @@ int main(int argc, char *argv[])
   // Initialize robot hardware and link to controller manager
   wombotGen3_base::WombotHardware wombot(nh, private_nh);
   controller_manager::ControllerManager cm(&wombot, nh);
-
-  // Connect the robot to the drivers
-  if (!wombot.connect()) {
-      ROS_ERROR("Wombot failed to connect to motors.");
-      return 1;
-  }
   
   // Setup separate queue and single-threaded spinner to process timer callbacks
   // that interface with Wombot hardware.
